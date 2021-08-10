@@ -110,6 +110,7 @@ int SQReco::InitRun(PHCompositeNode* topNode)
 
   //Init track finding
  // _fastfinder = new KalmanFastTracking(_phfield, _t_geo_manager, false);
+  std::cout<<"SETTING FASTFINDER"<<std::endl;
   _fastfinder = new KalmanFastTracking(_phfield, _t_geo_manager, _enable_KF);///Abi (Don't we turn on enable_kF ?)
 
   _fastfinder->Verbosity(Verbosity());
@@ -406,6 +407,7 @@ int SQReco::process_event(PHCompositeNode* topNode)
   std::list<Tracklet>& rec_tracklets = _fastfinder->getFinalTracklets();
   for(auto iter = rec_tracklets.begin(); iter != rec_tracklets.end(); ++iter)
   {
+    std::cout<<"A pass through final tracklet list in SQreco"<<std::endl; //WPM
     iter->calcChisq();
     if(Verbosity() > Fun4AllBase::VERBOSITY_A_LOT) iter->print();
 
@@ -418,6 +420,8 @@ int SQReco::process_event(PHCompositeNode* topNode)
         fitOK = fitTrackCand(*iter, _gfitter);
     }
 
+    std::cout<<"how's the fitOK? "<<fitOK<<std::endl;
+
     if(!fitOK)
     {
       SRecTrack recTrack = iter->getSRecTrack(_enable_KF && (_fitter_type == SQReco::LEGACY));
@@ -429,16 +433,19 @@ int SQReco::process_event(PHCompositeNode* topNode)
     {
       ++nFittedTracks;
     }
+    std::cout<<"nFittedTracks = "<<nFittedTracks<<std::endl; //WPM
 
     if(is_eval_enabled()) new((*_tracklets)[nTracklets]) Tracklet(*iter);
     if(is_eval_dst_enabled()) _tracklet_vector->push_back(&(*iter));
     ++nTracklets;
+    std::cout<<"nTracklets = "<<nTracklets<<std::endl; //WPM
   }
   LogDebug("Leaving SQReco::process_event: " << _event << ", finder status " << finderstatus << ", " << nTracklets << " track candidates, " << nFittedTracks << " fitted tracks");
 
   //add additional eval information if applicable
   if(is_eval_enabled() || is_eval_dst_enabled())
   {
+    std::cout<<"about to loop through eval_listIDs of size "<<_eval_listIDs.size()<<std::endl;
     for(unsigned int i = 0; i < _eval_listIDs.size(); ++i)
     {
       std::list<Tracklet>& eval_tracklets = _fastfinder->getTrackletList(_eval_listIDs[i]);
@@ -449,7 +456,7 @@ int SQReco::process_event(PHCompositeNode* topNode)
           new((*_tracklets)[nTracklets]) Tracklet(*iter);
           ++nTracklets;
         }
-
+	std::cout<<"another check on nTracklets = "<<nTracklets<<std::endl; //WPM
         if(is_eval_dst_enabled()) _tracklet_vector->push_back(&(*iter));
       }
     }

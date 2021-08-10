@@ -24,7 +24,7 @@ Created: 05-28-2013
 #include "KalmanFastTracking.h"
 #include "TriggerRoad.h"
 
-//#define _DEBUG_ON
+#define _DEBUG_ON
 
 namespace 
 {
@@ -565,6 +565,9 @@ int KalmanFastTracking::setRawEvent(SRawEvent* event_input)
     }
 #endif
 
+    std::cout<<"printout of outputListIdx = "<<outputListIdx<<std::endl; //WPM
+    std::cout<<"also, what is trackletsInSt[4].empty()? "<<trackletsInSt[4].empty()<<std::endl;
+
     if(outputListIdx == 4 && trackletsInSt[4].empty()) return TFEXIT_FAIL_GLOABL;
     if(!enable_KF) return TFEXIT_SUCCESS;
 
@@ -635,12 +638,14 @@ void KalmanFastTracking::buildBackPartialTracks()
 
     for(std::list<Tracklet>::iterator tracklet3 = trackletsInSt[2].begin(); tracklet3 != trackletsInSt[2].end(); ++tracklet3)
     {
+      std::cout<<"In statsion index 2 loop"<<std::endl;//WPM
         if(!COARSE_MODE)
         {
             //Extract the X hits only from station-3 tracks
             nHitsX3 = 0;
             for(std::list<SignedHit>::iterator ptr_hit = tracklet3->hits.begin(); ptr_hit != tracklet3->hits.end(); ++ptr_hit)
             {
+	      std::cout<<"station index 2 check hit.index? "<<ptr_hit->hit.index<<std::endl;;//WPM
                 if(ptr_hit->hit.index < 0) continue;
                 if(p_geomSvc->getPlaneType(ptr_hit->hit.detectorID) == 1)
                 {
@@ -654,14 +659,19 @@ void KalmanFastTracking::buildBackPartialTracks()
         Tracklet tracklet_best;
         for(std::list<Tracklet>::iterator tracklet2 = trackletsInSt[1].begin(); tracklet2 != trackletsInSt[1].end(); ++tracklet2)
         {
+	  std::cout<<"In statsion index 1 loop"<<std::endl;//WPM
             if(!COARSE_MODE)
             {
+
+	      std::cout<<"perhaps the issue is the tx and ty comparisons... fabs(tracklet2->tx - tracklet3->tx) = "<<fabs(tracklet2->tx - tracklet3->tx)<<" and fabs(tracklet2->ty - tracklet3->ty) = "<<fabs(tracklet2->ty - tracklet3->ty)<<std::endl; //WPM
+	      std::cout<<"in fact just for completeness: tracklet2->tx = "<<tracklet2->tx<<", tracklet3->tx = "<<tracklet3->tx<<", tracklet2->ty = "<<tracklet2->ty<<", tracklet3->ty = "<<tracklet3->ty<<std::endl; //WPM 
                 if(fabs(tracklet2->tx - tracklet3->tx) > 0.15 || fabs(tracklet2->ty - tracklet3->ty) > 0.1) continue;
 
                 //Extract the X hits from station-2 tracke
                 nHitsX2 = nHitsX3;
                 for(std::list<SignedHit>::iterator ptr_hit = tracklet2->hits.begin(); ptr_hit != tracklet2->hits.end(); ++ptr_hit)
                 {
+		  std::cout<<"station index 1 check hit.index? "<<ptr_hit->hit.index<<std::endl;//WPM
                     if(ptr_hit->hit.index < 0) continue;
                     if(p_geomSvc->getPlaneType(ptr_hit->hit.detectorID) == 1)
                     {
@@ -673,13 +683,17 @@ void KalmanFastTracking::buildBackPartialTracks()
 
                 //Apply a simple linear fit to get rough estimation of X-Z slope and intersection
                 chi2fit(nHitsX2, z_fit, x_fit, a, b);
+		std::cout<<"do linear fit?"<<std::endl; //WPM
                 if(fabs(a) > 2.*TX_MAX || fabs(b) > 2.*X0_MAX) continue;
+		std::cout<<"did linear fit and passed..."<<std::endl; //WPM
 
                 //Project to proportional tubes to see if there is enough
                 int nPropHits = 0;
+		std::cout<<"about to check prop tubes... that won't work will it?"<<std::endl; //WPM
                 for(int i = 0; i < 4; ++i)
                 {
                     double x_exp = a*z_mask[detectorIDs_muid[0][i] - nChamberPlanes - 1] + b;
+		    std::cout<<"just for fun print x_exp: "<<x_exp<<std::endl; //WPM
                     for(std::list<int>::iterator iter = hitIDs_muid[0][i].begin(); iter != hitIDs_muid[0][i].end(); ++iter)
                     {
                         if(fabs(hitAll[*iter].pos - x_exp) < 5.08)
@@ -690,7 +704,8 @@ void KalmanFastTracking::buildBackPartialTracks()
                     }
                     if(nPropHits > 0) break;
                 }
-                if(nPropHits == 0) continue;
+		std::cout<<"how many prop hits = "<<nPropHits<<std::endl; //WPM
+                //if(nPropHits == 0) continue; //WPM need to turn this back on
             }
 
             Tracklet tracklet_23 = (*tracklet2) + (*tracklet3);
@@ -755,8 +770,13 @@ void KalmanFastTracking::buildBackPartialTracks()
 #endif
         }
 
+	std::cout<<"out of index 1 loop"<<std::endl; //WPM
+
+
         if(tracklet_best.isValid() > 0) trackletsInSt[3].push_back(tracklet_best);
     }
+
+    std::cout<<"out of index 2 loop"<<std::endl; //WPM
 
     reduceTrackletList(trackletsInSt[3]);
     trackletsInSt[3].sort();
@@ -767,6 +787,9 @@ void KalmanFastTracking::buildGlobalTracks()
     double pos_exp[3], window[3];
     for(std::list<Tracklet>::iterator tracklet23 = trackletsInSt[3].begin(); tracklet23 != trackletsInSt[3].end(); ++tracklet23)
     {
+
+      std::cout<<"a pass through tracklet23 loop"<<std::endl; //WPM
+
         Tracklet tracklet_best[2];
         for(int i = 0; i < 2; ++i) //for two station-1 chambers
         {
@@ -803,7 +826,9 @@ void KalmanFastTracking::buildGlobalTracks()
 
                 Tracklet tracklet_global = (*tracklet23) * (*tracklet1);
                 fitTracklet(tracklet_global);
+		std::cout<<"going to hodomask global"<<std::endl; //WPM
                 if(!hodoMask(tracklet_global)) continue;
+		std::cout<<"passed hodomask global?"<<std::endl;
 
                 ///Resolve the left-right with a tight pull cut, then a loose one, then resolve by single projections
                 if(!COARSE_MODE)
@@ -909,6 +934,10 @@ void KalmanFastTracking::buildGlobalTracks()
             trackletsInSt[4].push_back(tracklet_best[1]);
         }
     }
+
+    if(trackletsInSt[4].empty()){
+      std::cout<<"Hmm trackletsInSt[4] is empty..."<<std::endl;
+    }//WPM
 
     trackletsInSt[4].sort();
 }
@@ -1358,13 +1387,27 @@ bool KalmanFastTracking::acceptTracklet(Tracklet& tracklet)
     if(COARSE_MODE) return true;
 
     //Hodoscope masking requirement
-    if(!hodoMask(tracklet)) return false;
+    //if(!hodoMask(tracklet)) return false; //WPM
+    if(!hodoMask(tracklet)){
+      std::cout<<"fail hodomask?"<<std::endl;
+      return false;
+    }
 
     //For back partials, require projection inside KMAG, and muon id in prop. tubes
+    std::cout<<"checking tracklet.  what is station id: "<<tracklet.stationID<<" and that will be compared to nstations -2 = "<<nStations-2<<std::endl;//WPM
     if(tracklet.stationID > nStations-2)
     {
-        if(!COSMIC_MODE && !p_geomSvc->isInKMAG(tracklet.getExpPositionX(Z_KMAG_BEND), tracklet.getExpPositionY(Z_KMAG_BEND))) return false;
-        if(!(muonID_comp(tracklet) || muonID_search(tracklet))) return false;
+      std::cout<<"station id was too big"<<std::endl;//WPM
+      //if(!COSMIC_MODE && !p_geomSvc->isInKMAG(tracklet.getExpPositionX(Z_KMAG_BEND), tracklet.getExpPositionY(Z_KMAG_BEND))) return false; //WPM
+      if(!COSMIC_MODE && !p_geomSvc->isInKMAG(tracklet.getExpPositionX(Z_KMAG_BEND), tracklet.getExpPositionY(Z_KMAG_BEND))){
+	std::cout<<"failed the cosmicmode?"<<std::endl;
+	return false;
+      }
+      //if(!(muonID_comp(tracklet) || muonID_search(tracklet))) return false; //WPM
+      if(!(muonID_comp(tracklet) || muonID_search(tracklet) || tracklet.stationID > 5)){
+	std::cout<<"failed muonid... muonID_comp = "<<muonID_comp(tracklet)<<" and muonID_search = "<<muonID_search(tracklet)<<std::endl;
+	return false;
+      }
     }
 
     //If everything is fine ...
@@ -1377,6 +1420,9 @@ bool KalmanFastTracking::acceptTracklet(Tracklet& tracklet)
 bool KalmanFastTracking::hodoMask(Tracklet& tracklet)
 {
     //LogInfo(tracklet.stationID);
+  LogInfo(tracklet.stationID); //WPM
+  std::cout<<"expected number of hodoscope hits? "<<stationIDs_mask[tracklet.stationID-1].size()<<std::endl; //WPM
+  if(tracklet.stationID == 4 || tracklet.stationID == 5) return true; //WPM
     int nHodoHits = 0;
     for(std::vector<int>::iterator stationID = stationIDs_mask[tracklet.stationID-1].begin(); stationID != stationIDs_mask[tracklet.stationID-1].end(); ++stationID)
     {
@@ -1411,6 +1457,8 @@ bool KalmanFastTracking::hodoMask(Tracklet& tracklet)
             {
                 nHodoHits++;
                 masked = true;
+
+		if(tracklet.stationID > 5) return true; //WPM
 
                 break;
             }
