@@ -35,8 +35,8 @@ using namespace std;
  * for Aprime signal, always run with is_displaced to True
  */
 
-int RecoE1039Sim(const int nevent = 200,
-                const int isim = 1,
+int RecoE1039Sim(const int nevent = 100,
+                const int isim = 3,
                 bool is_displaced = true,
                 const bool do_analysis = true,
                 bool electron_tracking = true,
@@ -85,7 +85,7 @@ int RecoE1039Sim(const int nevent = 200,
   // https://github.com/E1039-Collaboration/e1039-core/blob/master/framework/fun4all/Fun4AllBase.h#L33-L55
   // the verbosity of different modules can also be modified separately for
   // debugging
-  const int verbosity = 110;
+  const int verbosity = 0;
 
   // legacy rec container
   const bool legacy_rec_container =  true; // false is for e1039 format
@@ -213,6 +213,7 @@ int RecoE1039Sim(const int nevent = 200,
     genp->add_particles("e+", 1); // positron
     //genp->add_particles("gamma", 1); // photon
     //genp->add_particles("pi+", 1); // pions
+    //genp->add_particles("kaon+", 1); // trying kaon+
     //genp->add_particles("kaon0L", 1); // k0long
     //genp->add_particles("proton", 1); // protons
     //genp->add_particles("Upsilon", 1); // upsilon
@@ -221,7 +222,7 @@ int RecoE1039Sim(const int nevent = 200,
 					   PHG4SimpleEventGenerator::Uniform);
     if(is_displaced){
       //genp->set_vertex_distribution_mean(0.0, 0.0, 500.);
-      genp->set_vertex_distribution_mean(0.0, 0.0, 520.);
+      genp->set_vertex_distribution_mean(10.0, 10.0, 520.);
     } else {
       genp->set_vertex_distribution_mean(0.0, 0.0, target_coil_pos_z);
     }
@@ -229,7 +230,7 @@ int RecoE1039Sim(const int nevent = 200,
     genp->set_vertex_distribution_width(0.0, 0.0, 0.0);
     genp->set_vertex_size_function(PHG4SimpleEventGenerator::Uniform);
     genp->set_vertex_size_parameters(0.0, 0.0);
-    genp->set_pxpypz_range(-1., 1., -1., 1., 0., 100.);
+    genp->set_pxpypz_range(-5., 5., -5., 5., 0., 100.);
     //genp->set_pxpypz_range(-1., 1., -1., 1., 0., 10.);
     genp->Verbosity(verbosity);
     se->registerSubsystem(genp);
