@@ -244,6 +244,7 @@ int RecoE1039Sim(const int nevents = 200,
     hr->Verbosity(verbosity);
     se->registerSubsystem(hr);
   }
+
   else if(do_gun){ // single particle gun
     PHG4SimpleEventGenerator *genp = new PHG4SimpleEventGenerator("PARTICLEGUN");
     genp->add_particles(particle_name.c_str(), 1); 

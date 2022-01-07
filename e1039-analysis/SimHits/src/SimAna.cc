@@ -641,6 +641,83 @@ int SimAna::process_event(PHCompositeNode* topNode)
         }
         //std::cout<<"print out of n_st3tracklets: "<<n_st3tracklets<<std::endl;
     }
+    ++n_truthtracks;
+    if (n_truthtracks >= 100)
+      break;
+  }
+  
+  n_st3tracklets = 0;
+  //std::cout<<"about to enter st3tracklet loop"<<std::endl;
+  int n_st3trackletsINDEX = legacyContainer ? _recEvent->getNSt3Tracklets() : _recSt3TrackletVector->size();
+  for(int itrk = 0; itrk < n_st3trackletsINDEX; ++itrk) {
+    SRecTrack* track = legacyContainer ? &(_recEvent->getSt3Tracklet(n_st3tracklets)) : dynamic_cast<SRecTrack*>(_recSt3TrackletVector->at(n_st3tracklets));
+    st3tracklet_charge[n_st3tracklets] = track->getCharge();
+    st3tracklet_nhits[n_st3tracklets] = track->getNHits();
+    st3tracklet_x_target[n_st3tracklets] = (track->getTargetPos()).X();
+    st3tracklet_y_target[n_st3tracklets] = (track->getTargetPos()).Y();
+    st3tracklet_z_target[n_st3tracklets] = (track->getTargetPos()).Z();
+    st3tracklet_px_target[n_st3tracklets] = (track->getTargetMom()).Px();
+    st3tracklet_py_target[n_st3tracklets] = (track->getTargetMom()).Py();
+    st3tracklet_pz_target[n_st3tracklets] = (track->getTargetMom()).Pz();
+    st3tracklet_x_st1[n_st3tracklets] = (track->getPositionVecSt1()).X();
+    st3tracklet_y_st1[n_st3tracklets] = (track->getPositionVecSt1()).Y();
+    st3tracklet_z_st1[n_st3tracklets] = (track->getPositionVecSt1()).Z();
+    st3tracklet_px_st1[n_st3tracklets] = (track->getMomentumVecSt1()).Px();
+    st3tracklet_py_st1[n_st3tracklets] = (track->getMomentumVecSt1()).Py();
+    st3tracklet_pz_st1[n_st3tracklets] = (track->getMomentumVecSt1()).Pz();
+    st3tracklet_x_st3[n_st3tracklets] = (track->getPositionVecSt3()).X();
+    st3tracklet_y_st3[n_st3tracklets] = (track->getPositionVecSt3()).Y();
+    st3tracklet_z_st3[n_st3tracklets] = (track->getPositionVecSt3()).Z();
+    st3tracklet_px_st3[n_st3tracklets] = (track->getMomentumVecSt3()).Px();
+    st3tracklet_py_st3[n_st3tracklets] = (track->getMomentumVecSt3()).Py();
+    st3tracklet_pz_st3[n_st3tracklets] = (track->getMomentumVecSt3()).Pz();
+    st3tracklet_x_vtx[n_st3tracklets] = (track->getVertexPos()).X();
+    st3tracklet_y_vtx[n_st3tracklets] = (track->getVertexPos()).Y();
+    st3tracklet_z_vtx[n_st3tracklets] = (track->getVertexPos()).Z();
+    st3tracklet_px_vtx[n_st3tracklets] = (track->getVertexMom()).X();
+    st3tracklet_py_vtx[n_st3tracklets] = (track->getVertexMom()).Y();
+    st3tracklet_pz_vtx[n_st3tracklets] = (track->getVertexMom()).Z();
+    st3tracklet_x_CAL[n_st3tracklets] = st3tracklet_x_st3[n_st3tracklets] + (st3tracklet_px_st3[n_st3tracklets]/st3tracklet_pz_st3[n_st3tracklets])*(1930.-st3tracklet_z_st3[n_st3tracklets]);
+    st3tracklet_y_CAL[n_st3tracklets] = st3tracklet_y_st3[n_st3tracklets] + (st3tracklet_py_st3[n_st3tracklets]/st3tracklet_pz_st3[n_st3tracklets])*(1930.-st3tracklet_z_st3[n_st3tracklets]);
+    st3tracklet_chisq[n_st3tracklets] = track->getChisq();
+    st3tracklet_prob[n_st3tracklets] = track->getProb();
+    st3tracklet_quality[n_st3tracklets] = track->getQuality();
+    st3tracklet_isValid[n_st3tracklets] = track->isValid();
+    st3tracklet_nhits_st1[n_st3tracklets] = track->getNHitsInStation(1);
+    st3tracklet_nhits_st2[n_st3tracklets] = track->getNHitsInStation(2);
+    st3tracklet_nhits_st3[n_st3tracklets] = track->getNHitsInStation(3);
+    
+    ++n_st3tracklets;
+    if (n_st3tracklets >= 100)
+      break;
+  }
+  //std::cout<<"print out of n_st3tracklets: "<<n_st3tracklets<<std::endl; //WPM
+
+
+  // vertices
+  n_truthdimuons = 0;
+  int nDimuons = _dimuonVector->size();
+  for(int i = 0; i < nDimuons; ++i) {
+    SQDimuon* dimuon = _dimuonVector->at(i);
+    // truth dimuon
+    // from https://github.com/E1039-Collaboration/e1039-core/blob/master/simulation/g4dst/TruthNodeMaker.cc#L133-L155
+    truthdimuon_mass[n_truthdimuons] = dimuon->get_mom().M();
+    truthdimuon_x_vtx[n_truthdimuons] = (dimuon->get_pos()).X();
+    truthdimuon_y_vtx[n_truthdimuons] = (dimuon->get_pos()).Y();
+    truthdimuon_z_vtx[n_truthdimuons] = (dimuon->get_pos()).Z();
+    truthdimuon_px[n_truthdimuons] = (dimuon->get_mom()).X();
+    truthdimuon_py[n_truthdimuons] = (dimuon->get_mom()).Y();
+    truthdimuon_pz[n_truthdimuons] = (dimuon->get_mom()).Z();
+    truthdimuon_pmom_x[n_truthdimuons] = (dimuon->get_mom_pos()).Px();
+    truthdimuon_pmom_y[n_truthdimuons] = (dimuon->get_mom_pos()).Py();
+    truthdimuon_pmom_z[n_truthdimuons] = (dimuon->get_mom_pos()).Pz();
+    truthdimuon_nmom_x[n_truthdimuons] = (dimuon->get_mom_neg()).Px();
+    truthdimuon_nmom_y[n_truthdimuons] = (dimuon->get_mom_neg()).Py();
+    truthdimuon_nmom_z[n_truthdimuons] = (dimuon->get_mom_neg()).Pz();
+    ++n_truthdimuons;
+    if(n_truthdimuons >= 100) break;
+  }
+
 
     if (_saveVertex) {
         // vertices
