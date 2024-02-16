@@ -20,7 +20,7 @@ R__LOAD_LIBRARY(libanamodule)
  * suitable for production use and users should develop their own reconstruction macro for their own analysis.
  * */
 
-int RecoE906Data(const int nEvents = 1)
+int RecoE906Data(const int nEvents = 1, const bool do_displaced_tracking=true)
 {
   recoConsts* rc = recoConsts::instance();
   rc->set_IntFlag("RUNNUMBER", 6); // To select the plane geometry for E906 Run 6.
@@ -38,6 +38,7 @@ int RecoE906Data(const int nEvents = 1)
   rc->set_IntFlag("MaxHitsDC3p", 140);
   rc->set_IntFlag("MaxHitsDC3m", 140);
   //rc->Print();
+  if (do_displaced_tracking){                                                                                                                                    re->set_BoolFlag("TRACK_ELECTRONS", true);                                                                                                                   re->set_BoolFlag("TRACK_DISPLACED".true);                                                                                                                  } 
 
   Fun4AllServer* se = Fun4AllServer::instance();
   //se->Verbosity(100);
