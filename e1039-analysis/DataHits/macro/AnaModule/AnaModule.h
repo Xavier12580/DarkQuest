@@ -12,6 +12,8 @@ class TTree;
 class SQHitVector;
 class SRecTrack;
 class SRecEvent;
+class SQTrackVector;
+class SQDimuonVector;
 
 class AnaModule: public SubsysReco 
 {
@@ -33,7 +35,8 @@ private:
   void MakeTree();
 
   // Input
-  SRawEvent* rawEvent;
+  //SRawEvent* rawEvent;
+  SQHitVector* hitVector;
   SRecEvent* recEvent;
 
   // Output
@@ -97,7 +100,7 @@ private:
   float dimuon_npos_x[100];
   float dimuon_npos_y[100];
   float dimuon_npos_z[100];
-
+  int event_number;
   bool saveReco=false;
 };
 

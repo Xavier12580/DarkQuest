@@ -5,7 +5,8 @@
 #include <fun4all/Fun4AllReturnCodes.h>
 #include <phool/getClass.h>
 #include <ktracker/SRecEvent.h>
-
+#include <interface_main/SQHitVector.h>
+#include <interface_main/SQHit.h>
 #include "AnaModule.h"
 
 int AnaModule::Init(PHCompositeNode* topNode)
@@ -15,6 +16,7 @@ int AnaModule::Init(PHCompositeNode* topNode)
 
 int AnaModule::InitRun(PHCompositeNode* topNode)
 {
+	event_number=0;
   int ret = GetNodes(topNode);
   if(ret != Fun4AllReturnCodes::EVENT_OK) return ret;
 
@@ -27,20 +29,21 @@ int AnaModule::process_event(PHCompositeNode* topNode)
 {
   ResetEvalVars();
 
-  nHits = rawEvent->getNHitsAll();
+  nHits = hitVector->size();
 
   std::cout << "nhits " << nHits << std::endl;
-
+	std::cout << "EVENT_NUMBER " << event_number<< std::endl;
+	event_number++;
   // The NIM1 and NIM3 bits are random triggers. 
   int nim1TriggerMask = 32; 
   int nim3TriggerMask = 128;  
 
-  for(Int_t k = 0; k < rawEvent->getNHitsAll(); ++k)
+  for(Int_t k = 0; k < nHits; ++k)
   {
-    Hit h = rawEvent->getHit(k);
-    detectorID[k] = h.detectorID; 
-    elementID[k] = h.elementID;
-    pos[k] = h.pos;
+    SQHit* h = hitVector->at(k);
+    detectorID[k] = h->get_detector_id(); 
+    elementID[k] = h->get_element_id();
+    pos[k] = h->get_pos();
        
     // detector ID refers to the detector number as seen here:
     // st1-drift chambers| D0: 1-6, D1: 7-12
@@ -55,8 +58,8 @@ int AnaModule::process_event(PHCompositeNode* topNode)
 
     // elementID refers to the hodoscope bar or drift chamber channel hit, this is detector dependent but can give us an idea of position
 
-    tdcTime[k] = h.tdcTime;
-    driftDistance[k] = h.driftDistance;
+    tdcTime[k] = h->get_tdc_time();
+    driftDistance[k] = h->get_drift_distance();
 
   }
 
@@ -122,9 +125,9 @@ int AnaModule::process_event(PHCompositeNode* topNode)
     }
   }
 
-  if (rawEvent->getTriggerBits()>0 && (rawEvent->getTriggerBits() & (nim1TriggerMask|nim3TriggerMask) != 0)){
+  //if (rawEvent->getTriggerBits()>0 && (rawEvent->getTriggerBits() & (nim1TriggerMask|nim3TriggerMask) != 0)){
     saveTree->Fill();
-  }
+  //}
 
   return Fun4AllReturnCodes::EVENT_OK;
 }
@@ -140,10 +143,11 @@ int AnaModule::End(PHCompositeNode* topNode)
 
 int AnaModule::GetNodes(PHCompositeNode* topNode)
 {
-  rawEvent = findNode::getClass<SRawEvent>(topNode, "SRawEvent");
-  if(!rawEvent){
-    std::cout << "failed to find SRawEvent, return " << std::endl;
-    rawEvent = nullptr;
+
+  hitVector = findNode::getClass<SQHitVector>(topNode, "SQHitVector");
+  if(!hitVector){
+    std::cout << "failed to find SQHitVector, return " << std::endl;
+    hitVector = nullptr;
     return Fun4AllReturnCodes::ABORTEVENT;
   }
   recEvent = findNode::getClass<SRecEvent>(topNode, "SRecEvent");
