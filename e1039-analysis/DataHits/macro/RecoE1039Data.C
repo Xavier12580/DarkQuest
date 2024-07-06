@@ -122,7 +122,6 @@ int RecoE1039Data(const int nEvents = 1000, const bool do_displaced_tracking = t
     in->fileopen(fn_in);
     se->run(nEvents);
     nfile += 1;
-    break;
     if (nfile > 1)
       continue;
   }
