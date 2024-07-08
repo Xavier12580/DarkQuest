@@ -15,34 +15,37 @@ class SRecEvent;
 class SQTrackVector;
 class SQDimuonVector;
 
-class AnaModule: public SubsysReco 
+class AnaModule : public SubsysReco
 {
 public:
-  AnaModule() {;}
-  virtual ~AnaModule() {;}
+  AnaModule() { ; }
+  virtual ~AnaModule() { ; }
 
-  int Init(PHCompositeNode* topNode);
-  int InitRun(PHCompositeNode* topNode);
-  int process_event(PHCompositeNode* topNode);
-  int End(PHCompositeNode* topNode);
+  int Init(PHCompositeNode *topNode);
+  int InitRun(PHCompositeNode *topNode);
+  int process_event(PHCompositeNode *topNode);
+  int End(PHCompositeNode *topNode);
 
-  void set_output_filename(const TString& n) { saveName = n; }
-  void set_reco(bool b){ saveReco = b;}
+  void set_output_filename(const TString &n) { saveName = n; }
+  void set_reco(bool b) { saveReco = b; }
+  void set_additional_information(const TString &n) { additional_information = n; }
+  void reset_event_number() { event_number = 0; }
 
 private:
-  int GetNodes(PHCompositeNode* topNode);
+  int GetNodes(PHCompositeNode *topNode);
   int ResetEvalVars();
   void MakeTree();
 
   // Input
-  //SRawEvent* rawEvent;
-  SQHitVector* hitVector;
-  SRecEvent* recEvent;
+  // SRawEvent* rawEvent;
+  SQHitVector *hitVector;
+  SRecEvent *recEvent;
 
   // Output
   TString saveName;
-  TFile* saveFile;
-  TTree* saveTree;
+  TFile *saveFile;
+  TTree *saveTree;
+  TString additional_information;
 
   Int_t runID, spillID, eventID;
   Int_t triggerBits;
@@ -101,7 +104,7 @@ private:
   float dimuon_npos_y[100];
   float dimuon_npos_z[100];
   int event_number;
-  bool saveReco=false;
+  bool saveReco = false;
 };
 
 #endif

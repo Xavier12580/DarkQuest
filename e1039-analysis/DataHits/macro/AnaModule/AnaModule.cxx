@@ -9,42 +9,43 @@
 #include <interface_main/SQHit.h>
 #include "AnaModule.h"
 
-int AnaModule::Init(PHCompositeNode* topNode)
+int AnaModule::Init(PHCompositeNode *topNode)
 {
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int AnaModule::InitRun(PHCompositeNode* topNode)
+int AnaModule::InitRun(PHCompositeNode *topNode)
 {
-	event_number=0;
+  event_number = 0;
   int ret = GetNodes(topNode);
-  if(ret != Fun4AllReturnCodes::EVENT_OK) return ret;
+  if (ret != Fun4AllReturnCodes::EVENT_OK)
+    return ret;
 
   eventID = 0;
   MakeTree();
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int AnaModule::process_event(PHCompositeNode* topNode)
+int AnaModule::process_event(PHCompositeNode *topNode)
 {
   ResetEvalVars();
 
   nHits = hitVector->size();
-
+  std::cout << additional_information << std::endl;
   std::cout << "nhits " << nHits << std::endl;
-	std::cout << "EVENT_NUMBER " << event_number<< std::endl;
-	event_number++;
-  // The NIM1 and NIM3 bits are random triggers. 
-  int nim1TriggerMask = 32; 
-  int nim3TriggerMask = 128;  
+  std::cout << "EVENT_NUMBER " << event_number << std::endl;
+  event_number++;
+  // The NIM1 and NIM3 bits are random triggers.
+  int nim1TriggerMask = 32;
+  int nim3TriggerMask = 128;
 
-  for(Int_t k = 0; k < nHits; ++k)
+  for (Int_t k = 0; k < nHits; ++k)
   {
-    SQHit* h = hitVector->at(k);
-    detectorID[k] = h->get_detector_id(); 
+    SQHit *h = hitVector->at(k);
+    detectorID[k] = h->get_detector_id();
     elementID[k] = h->get_element_id();
     pos[k] = h->get_pos();
-       
+
     // detector ID refers to the detector number as seen here:
     // st1-drift chambers| D0: 1-6, D1: 7-12
     // st2-drift chambers| D2: 13-18
@@ -54,20 +55,21 @@ int AnaModule::process_event(PHCompositeNode* topNode)
     // h3-hodoscope: H3B/T: 39/40
     // h4-hodoscope: H4Y1L/R: 41/42 H4Y2L/R: 43/44 H4B/T: 45/46
     // proto-tubes: 47-54
-    // dp-stations: DP1:55-58, DP2:59-6 
+    // dp-stations: DP1:55-58, DP2:59-6
 
     // elementID refers to the hodoscope bar or drift chamber channel hit, this is detector dependent but can give us an idea of position
 
     tdcTime[k] = h->get_tdc_time();
     driftDistance[k] = h->get_drift_distance();
-
   }
 
   // track related variables
-  if(recEvent){
+  if (recEvent)
+  {
     n_tracks = recEvent->getNTracks();
-    for (int i = 0; i < n_tracks; ++i ) {
-      SRecTrack* recTrack = &recEvent->getTrack(i);
+    for (int i = 0; i < n_tracks; ++i)
+    {
+      SRecTrack *recTrack = &recEvent->getTrack(i);
       track_charge[i] = recTrack->getCharge();
       track_nhits[i] = recTrack->getNHits();
       track_x_target[i] = (recTrack->getTargetPos()).X();
@@ -97,11 +99,12 @@ int AnaModule::process_event(PHCompositeNode* topNode)
       if (i >= 100)
         break;
     }
-    
+
     // dimuon information
     n_dimuons = recEvent->getNDimuons();
-    for (int i = 0; i < n_dimuons; ++i) {
-      SRecDimuon* recDimuon = &recEvent->getDimuon(i);
+    for (int i = 0; i < n_dimuons; ++i)
+    {
+      SRecDimuon *recDimuon = &recEvent->getDimuon(i);
       dimuon_mass[i] = recDimuon->mass;
       dimuon_chisq[i] = recDimuon->get_chisq();
       dimuon_x_vtx[i] = (recDimuon->vtx).X();
@@ -110,7 +113,7 @@ int AnaModule::process_event(PHCompositeNode* topNode)
       dimuon_px[i] = (recDimuon->get_mom()).X();
       dimuon_py[i] = (recDimuon->get_mom()).Y();
       dimuon_pz[i] = (recDimuon->get_mom()).Z();
-      dimuon_pmom_x[i] = (recDimuon->p_pos).Px(); //4-momentum of the muon tracks after vertex fit
+      dimuon_pmom_x[i] = (recDimuon->p_pos).Px(); // 4-momentum of the muon tracks after vertex fit
       dimuon_pmom_y[i] = (recDimuon->p_pos).Py();
       dimuon_pmom_z[i] = (recDimuon->p_pos).Pz();
       dimuon_nmom_x[i] = (recDimuon->p_neg).Px();
@@ -119,20 +122,20 @@ int AnaModule::process_event(PHCompositeNode* topNode)
       dimuon_ppos_x[i] = (recDimuon->vtx_pos).X(); // vertex position
       dimuon_ppos_y[i] = (recDimuon->vtx_pos).Y();
       dimuon_ppos_z[i] = (recDimuon->vtx_pos).Z();
-      dimuon_npos_x[i] = (recDimuon->vtx_neg).X(); 
+      dimuon_npos_x[i] = (recDimuon->vtx_neg).X();
       dimuon_npos_y[i] = (recDimuon->vtx_neg).Y();
       dimuon_npos_z[i] = (recDimuon->vtx_neg).Z();
     }
   }
 
-  //if (rawEvent->getTriggerBits()>0 && (rawEvent->getTriggerBits() & (nim1TriggerMask|nim3TriggerMask) != 0)){
-    saveTree->Fill();
+  // if (rawEvent->getTriggerBits()>0 && (rawEvent->getTriggerBits() & (nim1TriggerMask|nim3TriggerMask) != 0)){
+  saveTree->Fill();
   //}
 
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int AnaModule::End(PHCompositeNode* topNode)
+int AnaModule::End(PHCompositeNode *topNode)
 {
   saveFile->cd();
   saveTree->Write();
@@ -141,27 +144,31 @@ int AnaModule::End(PHCompositeNode* topNode)
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int AnaModule::GetNodes(PHCompositeNode* topNode)
+int AnaModule::GetNodes(PHCompositeNode *topNode)
 {
 
   hitVector = findNode::getClass<SQHitVector>(topNode, "SQHitVector");
-  if(!hitVector){
+  if (!hitVector)
+  {
     std::cout << "failed to find SQHitVector, return " << std::endl;
     hitVector = nullptr;
     return Fun4AllReturnCodes::ABORTEVENT;
   }
   recEvent = findNode::getClass<SRecEvent>(topNode, "SRecEvent");
-  if(!recEvent || !saveReco) {
+  if (!recEvent || !saveReco)
+  {
     std::cout << "failed to find SRecEvent " << std::endl;
-    //recEvent = nullptr;
-    // return Fun4AllReturnCodes::ABORTEVENT;
+    // recEvent = nullptr;
+    //  return Fun4AllReturnCodes::ABORTEVENT;
   }
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int AnaModule::ResetEvalVars() {
+int AnaModule::ResetEvalVars()
+{
   nHits = 0;
-  for(int i=0; i<15000; ++i) {
+  for (int i = 0; i < 15000; ++i)
+  {
     detectorID[i] = std::numeric_limits<int>::max();
     elementID[i] = std::numeric_limits<int>::max();
     tdcTime[i] = std::numeric_limits<double>::max();
@@ -170,58 +177,60 @@ int AnaModule::ResetEvalVars() {
   }
 
   n_tracks = 0;
-  for(int i=0; i<100; ++i) {
-    track_charge[i]      = std::numeric_limits<int>::max();
-    track_nhits[i]       = std::numeric_limits<int>::max();
-    track_x_target[i]    = std::numeric_limits<float>::max();
-    track_y_target[i]    = std::numeric_limits<float>::max();
-    track_z_target[i]    = std::numeric_limits<float>::max();
-    track_px_target[i]   = std::numeric_limits<float>::max();
-    track_py_target[i]   = std::numeric_limits<float>::max();
-    track_pz_target[i]   = std::numeric_limits<float>::max();
-    track_x_st1[i]       = std::numeric_limits<float>::max();
-    track_y_st1[i]       = std::numeric_limits<float>::max();
-    track_z_st1[i]       = std::numeric_limits<float>::max();
-    track_px_st1[i]      = std::numeric_limits<float>::max();
-    track_py_st1[i]      = std::numeric_limits<float>::max();
-    track_pz_st1[i]      = std::numeric_limits<float>::max();
-    track_x_vtx[i]       = std::numeric_limits<float>::max();
-    track_y_vtx[i]       = std::numeric_limits<float>::max();
-    track_z_vtx[i]       = std::numeric_limits<float>::max();
-    track_px_vtx[i]      = std::numeric_limits<float>::max();
-    track_py_vtx[i]      = std::numeric_limits<float>::max();
-    track_pz_vtx[i]      = std::numeric_limits<float>::max();
-    track_m[i]           = std::numeric_limits<float>::max();
-    track_chisq[i]       = std::numeric_limits<float>::max();
-    track_prob[i]        = std::numeric_limits<float>::max();
-    track_quality[i]     = std::numeric_limits<float>::max();
-    track_nhits_st1[i]   = std::numeric_limits<float>::max();
-    track_nhits_st2[i]   = std::numeric_limits<float>::max();
-    track_nhits_st3[i]   = std::numeric_limits<float>::max();
+  for (int i = 0; i < 100; ++i)
+  {
+    track_charge[i] = std::numeric_limits<int>::max();
+    track_nhits[i] = std::numeric_limits<int>::max();
+    track_x_target[i] = std::numeric_limits<float>::max();
+    track_y_target[i] = std::numeric_limits<float>::max();
+    track_z_target[i] = std::numeric_limits<float>::max();
+    track_px_target[i] = std::numeric_limits<float>::max();
+    track_py_target[i] = std::numeric_limits<float>::max();
+    track_pz_target[i] = std::numeric_limits<float>::max();
+    track_x_st1[i] = std::numeric_limits<float>::max();
+    track_y_st1[i] = std::numeric_limits<float>::max();
+    track_z_st1[i] = std::numeric_limits<float>::max();
+    track_px_st1[i] = std::numeric_limits<float>::max();
+    track_py_st1[i] = std::numeric_limits<float>::max();
+    track_pz_st1[i] = std::numeric_limits<float>::max();
+    track_x_vtx[i] = std::numeric_limits<float>::max();
+    track_y_vtx[i] = std::numeric_limits<float>::max();
+    track_z_vtx[i] = std::numeric_limits<float>::max();
+    track_px_vtx[i] = std::numeric_limits<float>::max();
+    track_py_vtx[i] = std::numeric_limits<float>::max();
+    track_pz_vtx[i] = std::numeric_limits<float>::max();
+    track_m[i] = std::numeric_limits<float>::max();
+    track_chisq[i] = std::numeric_limits<float>::max();
+    track_prob[i] = std::numeric_limits<float>::max();
+    track_quality[i] = std::numeric_limits<float>::max();
+    track_nhits_st1[i] = std::numeric_limits<float>::max();
+    track_nhits_st2[i] = std::numeric_limits<float>::max();
+    track_nhits_st3[i] = std::numeric_limits<float>::max();
   }
 
   n_dimuons = 0;
-  for(int i=0; i<100; ++i) {
-    dimuon_mass[i]       = std::numeric_limits<float>::max();
-    dimuon_chisq[i]      = std::numeric_limits<float>::max();
-    dimuon_x_vtx[i]      = std::numeric_limits<float>::max();
-    dimuon_y_vtx[i]      = std::numeric_limits<float>::max();
-    dimuon_z_vtx[i]      = std::numeric_limits<float>::max();
-    dimuon_px[i]         = std::numeric_limits<float>::max();
-    dimuon_py[i]         = std::numeric_limits<float>::max();
-    dimuon_pz[i]         = std::numeric_limits<float>::max();
-    dimuon_pmom_x[i]     = std::numeric_limits<float>::max();
-    dimuon_pmom_y[i]     = std::numeric_limits<float>::max();
-    dimuon_pmom_z[i]     = std::numeric_limits<float>::max();
-    dimuon_nmom_x[i]     = std::numeric_limits<float>::max();
-    dimuon_nmom_y[i]     = std::numeric_limits<float>::max();
-    dimuon_nmom_z[i]     = std::numeric_limits<float>::max();
-    dimuon_ppos_x[i]     = std::numeric_limits<float>::max();
-    dimuon_ppos_y[i]     = std::numeric_limits<float>::max();
-    dimuon_ppos_z[i]     = std::numeric_limits<float>::max();
-    dimuon_npos_x[i]     = std::numeric_limits<float>::max();
-    dimuon_npos_y[i]     = std::numeric_limits<float>::max();
-    dimuon_npos_z[i]     = std::numeric_limits<float>::max();
+  for (int i = 0; i < 100; ++i)
+  {
+    dimuon_mass[i] = std::numeric_limits<float>::max();
+    dimuon_chisq[i] = std::numeric_limits<float>::max();
+    dimuon_x_vtx[i] = std::numeric_limits<float>::max();
+    dimuon_y_vtx[i] = std::numeric_limits<float>::max();
+    dimuon_z_vtx[i] = std::numeric_limits<float>::max();
+    dimuon_px[i] = std::numeric_limits<float>::max();
+    dimuon_py[i] = std::numeric_limits<float>::max();
+    dimuon_pz[i] = std::numeric_limits<float>::max();
+    dimuon_pmom_x[i] = std::numeric_limits<float>::max();
+    dimuon_pmom_y[i] = std::numeric_limits<float>::max();
+    dimuon_pmom_z[i] = std::numeric_limits<float>::max();
+    dimuon_nmom_x[i] = std::numeric_limits<float>::max();
+    dimuon_nmom_y[i] = std::numeric_limits<float>::max();
+    dimuon_nmom_z[i] = std::numeric_limits<float>::max();
+    dimuon_ppos_x[i] = std::numeric_limits<float>::max();
+    dimuon_ppos_y[i] = std::numeric_limits<float>::max();
+    dimuon_ppos_z[i] = std::numeric_limits<float>::max();
+    dimuon_npos_x[i] = std::numeric_limits<float>::max();
+    dimuon_npos_y[i] = std::numeric_limits<float>::max();
+    dimuon_npos_z[i] = std::numeric_limits<float>::max();
   }
 
   return 1;
@@ -239,45 +248,46 @@ void AnaModule::MakeTree()
   saveTree->Branch("driftDistance", driftDistance, "driftDistance[nHits]/D");
   saveTree->Branch("pos", pos, "pos[nHits]/D");
 
-  if(saveReco){
-    saveTree->Branch("n_tracks",              &n_tracks,            "n_tracks/I");
-    saveTree->Branch("track_charge",         track_charge,        "track_charge[n_tracks]/I");
-    saveTree->Branch("track_nhits",          track_nhits,         "track_nhits[n_tracks]/I");
-    saveTree->Branch("track_x_target",       track_x_target,      "track_x_target[n_tracks]/F");
-    saveTree->Branch("track_y_target",       track_y_target,      "track_y_target[n_tracks]/F");
-    saveTree->Branch("track_z_target",       track_z_target,      "track_z_target[n_tracks]/F");
-    saveTree->Branch("track_px_target",      track_px_target,     "track_px_target[n_tracks]/F");
-    saveTree->Branch("track_py_target",      track_py_target,     "track_py_target[n_tracks]/F");
-    saveTree->Branch("track_pz_target",      track_pz_target,     "track_pz_target[n_tracks]/F");
-    saveTree->Branch("track_x_st1",          track_x_st1,         "track_x_st1[n_tracks]/F");
-    saveTree->Branch("track_y_st1",          track_y_st1,         "track_y_st1[n_tracks]/F");
-    saveTree->Branch("track_z_st1",          track_z_st1,         "track_z_st1[n_tracks]/F");
-    saveTree->Branch("track_px_st1",         track_px_st1,        "track_px_st1[n_tracks]/F");
-    saveTree->Branch("track_py_st1",         track_py_st1,        "track_py_st1[n_tracks]/F");
-    saveTree->Branch("track_pz_st1",         track_pz_st1,        "track_pz_st1[n_tracks]/F");
-    saveTree->Branch("track_x_vtx",          track_x_vtx,         "track_x_vtx[n_tracks]/F");
-    saveTree->Branch("track_y_vtx",          track_y_vtx,         "track_y_vtx[n_tracks]/F");
-    saveTree->Branch("track_z_vtx",          track_z_vtx,         "track_z_vtx[n_tracks]/F");
-    saveTree->Branch("track_px_vtx",         track_px_vtx,        "track_px_vtx[n_tracks]/F");
-    saveTree->Branch("track_py_vtx",         track_py_vtx,        "track_py_vtx[n_tracks]/F");
-    saveTree->Branch("track_pz_vtx",         track_pz_vtx,        "track_pz_vtx[n_tracks]/F");
-    saveTree->Branch("track_m",              track_m,             "track_m[n_tracks]/F");
-    saveTree->Branch("track_chisq",          track_chisq,         "track_chisq[n_tracks]/F");
-    saveTree->Branch("track_prob",           track_prob,          "track_prob[n_tracks]/F");
-    saveTree->Branch("track_quality",        track_quality,       "track_quality[n_tracks]/F");
-    saveTree->Branch("track_nhits_st1",      track_nhits_st1,     "track_nhits_st1[n_tracks]/I");
-    saveTree->Branch("track_nhits_st2",      track_nhits_st2,     "track_nhits_st2[n_tracks]/I");
-    saveTree->Branch("track_nhits_st3",      track_nhits_st3,     "track_nhits_st3[n_tracks]/I");
-    
-    saveTree->Branch("n_dimuons",     &n_dimuons,    "n_dimuons/I");
-    saveTree->Branch("dimuon_mass",   dimuon_mass,   "dimuon_mass[n_dimuons]/F");
-    saveTree->Branch("dimuon_chisq",  dimuon_chisq,  "dimuon_chisq[n_dimuons]/F");
-    saveTree->Branch("dimuon_x_vtx",  dimuon_x_vtx,  "dimuon_x_vtx[n_dimuons]/F");
-    saveTree->Branch("dimuon_y_vtx",  dimuon_y_vtx,  "dimuon_y_vtx[n_dimuons]/F");
-    saveTree->Branch("dimuon_z_vtx",  dimuon_z_vtx,  "dimuon_z_vtx[n_dimuons]/F");
-    saveTree->Branch("dimuon_px",     dimuon_px,     "dimuon_px[n_dimuons]/F");
-    saveTree->Branch("dimuon_py",     dimuon_py,     "dimuon_py[n_dimuons]/F");
-    saveTree->Branch("dimuon_pz",     dimuon_pz,     "dimuon_pz[n_dimuons]/F");
+  if (saveReco)
+  {
+    saveTree->Branch("n_tracks", &n_tracks, "n_tracks/I");
+    saveTree->Branch("track_charge", track_charge, "track_charge[n_tracks]/I");
+    saveTree->Branch("track_nhits", track_nhits, "track_nhits[n_tracks]/I");
+    saveTree->Branch("track_x_target", track_x_target, "track_x_target[n_tracks]/F");
+    saveTree->Branch("track_y_target", track_y_target, "track_y_target[n_tracks]/F");
+    saveTree->Branch("track_z_target", track_z_target, "track_z_target[n_tracks]/F");
+    saveTree->Branch("track_px_target", track_px_target, "track_px_target[n_tracks]/F");
+    saveTree->Branch("track_py_target", track_py_target, "track_py_target[n_tracks]/F");
+    saveTree->Branch("track_pz_target", track_pz_target, "track_pz_target[n_tracks]/F");
+    saveTree->Branch("track_x_st1", track_x_st1, "track_x_st1[n_tracks]/F");
+    saveTree->Branch("track_y_st1", track_y_st1, "track_y_st1[n_tracks]/F");
+    saveTree->Branch("track_z_st1", track_z_st1, "track_z_st1[n_tracks]/F");
+    saveTree->Branch("track_px_st1", track_px_st1, "track_px_st1[n_tracks]/F");
+    saveTree->Branch("track_py_st1", track_py_st1, "track_py_st1[n_tracks]/F");
+    saveTree->Branch("track_pz_st1", track_pz_st1, "track_pz_st1[n_tracks]/F");
+    saveTree->Branch("track_x_vtx", track_x_vtx, "track_x_vtx[n_tracks]/F");
+    saveTree->Branch("track_y_vtx", track_y_vtx, "track_y_vtx[n_tracks]/F");
+    saveTree->Branch("track_z_vtx", track_z_vtx, "track_z_vtx[n_tracks]/F");
+    saveTree->Branch("track_px_vtx", track_px_vtx, "track_px_vtx[n_tracks]/F");
+    saveTree->Branch("track_py_vtx", track_py_vtx, "track_py_vtx[n_tracks]/F");
+    saveTree->Branch("track_pz_vtx", track_pz_vtx, "track_pz_vtx[n_tracks]/F");
+    saveTree->Branch("track_m", track_m, "track_m[n_tracks]/F");
+    saveTree->Branch("track_chisq", track_chisq, "track_chisq[n_tracks]/F");
+    saveTree->Branch("track_prob", track_prob, "track_prob[n_tracks]/F");
+    saveTree->Branch("track_quality", track_quality, "track_quality[n_tracks]/F");
+    saveTree->Branch("track_nhits_st1", track_nhits_st1, "track_nhits_st1[n_tracks]/I");
+    saveTree->Branch("track_nhits_st2", track_nhits_st2, "track_nhits_st2[n_tracks]/I");
+    saveTree->Branch("track_nhits_st3", track_nhits_st3, "track_nhits_st3[n_tracks]/I");
+
+    saveTree->Branch("n_dimuons", &n_dimuons, "n_dimuons/I");
+    saveTree->Branch("dimuon_mass", dimuon_mass, "dimuon_mass[n_dimuons]/F");
+    saveTree->Branch("dimuon_chisq", dimuon_chisq, "dimuon_chisq[n_dimuons]/F");
+    saveTree->Branch("dimuon_x_vtx", dimuon_x_vtx, "dimuon_x_vtx[n_dimuons]/F");
+    saveTree->Branch("dimuon_y_vtx", dimuon_y_vtx, "dimuon_y_vtx[n_dimuons]/F");
+    saveTree->Branch("dimuon_z_vtx", dimuon_z_vtx, "dimuon_z_vtx[n_dimuons]/F");
+    saveTree->Branch("dimuon_px", dimuon_px, "dimuon_px[n_dimuons]/F");
+    saveTree->Branch("dimuon_py", dimuon_py, "dimuon_py[n_dimuons]/F");
+    saveTree->Branch("dimuon_pz", dimuon_pz, "dimuon_pz[n_dimuons]/F");
     saveTree->Branch("dimuon_pmom_x", dimuon_pmom_x, "dimuon_pmom_x[n_dimuons]/F");
     saveTree->Branch("dimuon_pmom_y", dimuon_pmom_y, "dimuon_pmom_y[n_dimuons]/F");
     saveTree->Branch("dimuon_pmom_z", dimuon_pmom_z, "dimuon_pmom_z[n_dimuons]/F");
@@ -291,5 +301,4 @@ void AnaModule::MakeTree()
     saveTree->Branch("dimuon_npos_y", dimuon_npos_y, "dimuon_npos_y[n_dimuons]/F");
     saveTree->Branch("dimuon_npos_z", dimuon_npos_z, "dimuon_npos_z[n_dimuons]/F");
   }
-
 }

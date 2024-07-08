@@ -9,7 +9,7 @@ R__LOAD_LIBRARY(libg4eval)
 R__LOAD_LIBRARY(libcalibrator)
 R__LOAD_LIBRARY(libktracker)
 R__LOAD_LIBRARY(libanamodule)
-
+// R__LOAD_LIBRARY(libdebugmodule)
 /*
  * This macro takes severl external input files to run:
  * 1. geom.root is the standard geometry dump from running the Fun4Sim macro;
@@ -20,7 +20,7 @@ R__LOAD_LIBRARY(libanamodule)
  * suitable for production use and users should develop their own reconstruction macro for their own analysis.
  * */
 
-int RecoE1039Data(const int nEvents = 1000, const bool do_displaced_tracking = true)
+int RecoE1039Data(const int nEvents = 0, const string file_name = "run.root", const string out_file_name = "ana.root", const bool do_displaced_tracking = true)
 {
   recoConsts *rc = recoConsts::instance();
   rc->set_IntFlag("RUNNUMBER", 6111);    // To select the plane geometry for E906 Run 6.
@@ -94,43 +94,26 @@ int RecoE1039Data(const int nEvents = 1000, const bool do_displaced_tracking = t
   /// AnaModule
   ///
   AnaModule *ana = new AnaModule();
-  ana->set_output_filename("ana.root");
+  ana->set_output_filename(out_file_name);
   ana->set_reco(true);
+  ana->set_additional_information(file_name);
   se->registerSubsystem(ana);
+  // DebugModule *debug =new DebugModule();
+  // se->registerSubsystem(debug);
 
   /// Input, output and run.
   ///
   Fun4AllInputManager *in = new Fun4AllDstInputManager("DSTIN");
   in->Verbosity(0);
-  // in->fileopen(DST_in.c_str());
+  in->fileopen(file_name);
   se->registerInputManager(in);
 
-  Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT", "result.root");
-  se->registerOutputManager(out);
-  // out->AddNode("SRawEvent");
-  // out->AddNode("SRecEvent");
-  const std::string fn_list_run = "file_list.txt";
-  ifstream ifs(fn_list_run);
-  string fn_in;
-  int nfile = 0;
-  while (ifs >> fn_in)
-  {
-    // string fn_in = UtilOnline::GetDstFilePath(run);
-    cout << 1 << endl;
-    cout << fn_in << endl;
-    // rc->Print();
-    in->fileopen(fn_in);
-    se->run(nEvents);
-    nfile += 1;
-    if (nfile > 1)
-      continue;
-  }
-  ifs.close();
-
+  se->run(nEvents);
   PHGeomUtility::ExportGeomtry(se->topNode(), "geom.root");
   rc->WriteToFile("recoConsts.tsv");
   se->End();
   delete se;
+  std::cout << "All done" << std::endl;
   gSystem->Exit(0);
   return 0;
 }
