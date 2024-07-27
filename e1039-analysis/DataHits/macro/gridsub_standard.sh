@@ -36,7 +36,7 @@ for (( id=1; id<=$njobs; id++ )) ; do
 	#fi
 	file_name=$(sed "${id}q;d" "file_list.txt")
 	echo $file_name
-	tar -czvf $work/input_$id.tar.gz file_list.txt RecoE1039DataKMagOn.C work support AnaModule setup.sh $file_name
+	tar -czvf $work/input_$id.tar.gz file_list.txt RecoE1039Data.C work support AnaModule setup.sh $file_name
 	mkdir -p $work/$id/out
 	chmod -R 01755 $work/$id
 	cp -a $dir_macros/gridrun_standard.sh $work/$id

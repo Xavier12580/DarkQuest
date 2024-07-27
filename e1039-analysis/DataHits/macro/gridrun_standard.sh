@@ -34,7 +34,7 @@ file_list=file_list.txt
 file_name=$(sed "${job_id}q;d" "$file_list")
 file_base=$(basename "$file_name" .root)
 in_file="${file_name:1}"
-time root -b -q RecoE1039DataKMagOn.C\($nevents,\"$in_file\",\"ana_$file_base\.root\",true,$run_number\);
+time root -b -q RecoE1039Data.C\($nevents,\"$in_file\",\"ana_$file_base\.root\",true,$run_number\);
 RET=$?
 if [ $RET -ne 0 ] ; then
 	echo "Error in RecoE1039Data.C: $RET"
