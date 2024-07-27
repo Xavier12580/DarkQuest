@@ -5,5 +5,5 @@ file="./run_list.txt"
 # Read the file line by line
 while IFS= read -r line
 do
-  ./gridsub_standard.sh $line 0 chatura_coarseOn_standard
+  ./gridsub_standard.sh $line 0 standard
 done < "$file"
