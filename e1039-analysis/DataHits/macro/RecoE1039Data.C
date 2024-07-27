@@ -18,7 +18,7 @@ This is an example script intended to demonstrate how to run SQReco in a minimal
 suitable for production use and users should develop their own reconstruction macro for their own analysis.
 */
 
-int RecoE1039DataKMagOn(const int nEvents, std::string infile = "./fileset/digit_run_028694_spill_001415238.root", std::string outfile="ana.root", bool do_displaced_tracking=true,const int runID=6155)
+int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_028694_spill_001415238.root", std::string outfile="ana.root", bool do_displaced_tracking=true,const int runID=6155)
 {
     const float fac=2;
 
