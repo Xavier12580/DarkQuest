@@ -44,7 +44,7 @@ for (( id=1; id<=$njobs; id++ )) ; do
 	if [ $do_sub == 1 ]; then
 		CMD="/exp/seaquest/app/software/script/jobsub_submit_spinquest.sh"
 		CMD+=" --expected-lifetime='long'"
-		CMD+=" --memory=8000"
+		CMD+=" --memory=2000"
 		CMD+=" -L $work/$id/log_gridrun.txt"
 		CMD+=" -f $work/input_$id.tar.gz"
 		CMD+=" -d OUTPUT $work/$id/out"
