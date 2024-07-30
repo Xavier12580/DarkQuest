@@ -65,7 +65,7 @@ int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_0
     rc->set_DoubleFlag("FMAGSTR", 0.);
   }
 
-  rc->set_BoolFlag("COARSE_MODE", true);
+  rc->set_BoolFlag("COARSE_MODE", false);
   //rc->set_DoubleFlag("KMAGSTR", 0.);
   //rc->set_BoolFlag("KMAG_ON", false);
 
