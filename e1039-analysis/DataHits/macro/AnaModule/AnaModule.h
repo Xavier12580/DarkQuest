@@ -14,6 +14,7 @@ class SRecTrack;
 class SRecEvent;
 class SQTrackVector;
 class SQDimuonVector;
+class SQEvent;
 
 class AnaModule : public SubsysReco
 {
@@ -38,6 +39,7 @@ private:
 
   // Input
   // SRawEvent* rawEvent;
+  //SQEvent & Event;
   SQHitVector *hitVector;
   SRecEvent *recEvent;
 
@@ -48,6 +50,7 @@ private:
   TString additional_information;
 
   Int_t runID, spillID, eventID;
+  
   Int_t triggerBits;
   Int_t nHits;
   Int_t detectorID[15000], elementID[15000];

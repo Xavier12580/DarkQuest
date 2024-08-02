@@ -100,7 +100,7 @@ int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_0
   reco->set_enable_KF(true); //Kalman filter not needed for the track finding, disabling KF saves a lot of initialization time
   reco->setInputTy(SQReco::E1039);    //options are SQReco::E906 and SQReco::E1039
   reco->setFitterTy(SQReco::KFREF);  //not relavant for the track finding
-  reco->set_evt_reducer_opt("none"); //if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none"
+  reco->set_evt_reducer_opt("aoc"); //if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none"
 
   reco->set_enable_eval_dst(true); // Added to avoid processing errors
   reco->add_eval_list(3);

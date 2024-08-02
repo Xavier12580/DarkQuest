@@ -39,6 +39,11 @@ int AnaModule::process_event(PHCompositeNode *topNode)
   int nim1TriggerMask = 32;
   int nim3TriggerMask = 128;
 
+  runID=recEvent->getRunID();
+  spillID=recEvent->getSpillID();
+  eventID=recEvent->getEventID();
+  triggerBits=recEvent->getTriggerBits();
+
   for (Int_t k = 0; k < nHits; ++k)
   {
     SQHit *h = hitVector->at(k);
@@ -169,6 +174,7 @@ int AnaModule::ResetEvalVars()
   nHits = 0;
   for (int i = 0; i < 15000; ++i)
   {
+    
     detectorID[i] = std::numeric_limits<int>::max();
     elementID[i] = std::numeric_limits<int>::max();
     tdcTime[i] = std::numeric_limits<double>::max();
@@ -176,6 +182,10 @@ int AnaModule::ResetEvalVars()
     pos[i] = std::numeric_limits<double>::max();
   }
 
+    runID = std::numeric_limits<int>::max();
+    spillID = std::numeric_limits<int>::max();
+    eventID = std::numeric_limits<int>::max();
+    triggerBits = std::numeric_limits<int>::max();
   n_tracks = 0;
   for (int i = 0; i < 100; ++i)
   {
@@ -242,6 +252,10 @@ void AnaModule::MakeTree()
 
   saveTree = new TTree("Events", "Tree Created by AnaModule");
   saveTree->Branch("nHits", &nHits);
+  saveTree->Branch("eventID", &eventID);
+  saveTree->Branch("runID", &runID);
+  saveTree->Branch("spillID", &spillID);
+  saveTree->Branch("triggerBits", &triggerBits);
   saveTree->Branch("detectorID", detectorID, "detectorID[nHits]/I");
   saveTree->Branch("elementID", elementID, "elementID[nHits]/I");
   saveTree->Branch("tdcTime", tdcTime, "tdcTime[nHits]/D");

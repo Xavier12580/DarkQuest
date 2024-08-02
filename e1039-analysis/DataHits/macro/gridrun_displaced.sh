@@ -26,6 +26,7 @@ echo "hello, grid." | tee out.txt $CONDOR_DIR_OUTPUT/out.txt
 echo "HOST = $HOSTNAME" | tee -a out.txt $CONDOR_DIR_OUTPUT/out.txt
 pwd | tee -a out.txt $CONDOR_DIR_OUTPUT/out.txt
 tar -xzvf $CONDOR_DIR_INPUT/input_$job_id.tar.gz
+tar -xzvf public.tar.gz
 ls -lh | tee -a out.txt $CONDOR_DIR_OUTPUT/out.txt
 source seaquest/users/xinlongl/test/testio/core-inst/this-e1039.sh
 source setup.sh 
