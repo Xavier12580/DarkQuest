@@ -7,6 +7,7 @@
 #include <ktracker/SRecEvent.h>
 #include <interface_main/SQHitVector.h>
 #include <interface_main/SQHit.h>
+#include <interface_main/SQEvent.h>
 #include "AnaModule.h"
 
 int AnaModule::Init(PHCompositeNode *topNode)
@@ -39,10 +40,10 @@ int AnaModule::process_event(PHCompositeNode *topNode)
   int nim1TriggerMask = 32;
   int nim3TriggerMask = 128;
 
-  runID=recEvent->getRunID();
-  spillID=recEvent->getSpillID();
-  eventID=recEvent->getEventID();
-  triggerBits=recEvent->getTriggerBits();
+  runID=Event->get_run_id();
+  spillID=Event->get_spill_id();
+  eventID=Event->get_event_id();
+  trigger=Event->get_trigger();
 
   for (Int_t k = 0; k < nHits; ++k)
   {
@@ -133,7 +134,6 @@ int AnaModule::process_event(PHCompositeNode *topNode)
     }
   }
 
-  // if (rawEvent->getTriggerBits()>0 && (rawEvent->getTriggerBits() & (nim1TriggerMask|nim3TriggerMask) != 0)){
   saveTree->Fill();
   //}
 
@@ -152,6 +152,13 @@ int AnaModule::End(PHCompositeNode *topNode)
 int AnaModule::GetNodes(PHCompositeNode *topNode)
 {
 
+  Event=findNode::getClass<SQEvent>(topNode, "SQEvent");
+  if (!Event)
+  {
+    std::cout << "failed to find SQEvent, return " << std::endl;
+    Event = nullptr;
+    return Fun4AllReturnCodes::ABORTEVENT;
+  }
   hitVector = findNode::getClass<SQHitVector>(topNode, "SQHitVector");
   if (!hitVector)
   {
@@ -185,7 +192,7 @@ int AnaModule::ResetEvalVars()
     runID = std::numeric_limits<int>::max();
     spillID = std::numeric_limits<int>::max();
     eventID = std::numeric_limits<int>::max();
-    triggerBits = std::numeric_limits<int>::max();
+    trigger = std::numeric_limits<int>::max();
   n_tracks = 0;
   for (int i = 0; i < 100; ++i)
   {
@@ -255,7 +262,7 @@ void AnaModule::MakeTree()
   saveTree->Branch("eventID", &eventID);
   saveTree->Branch("runID", &runID);
   saveTree->Branch("spillID", &spillID);
-  saveTree->Branch("triggerBits", &triggerBits);
+  saveTree->Branch("trigger", &trigger);
   saveTree->Branch("detectorID", detectorID, "detectorID[nHits]/I");
   saveTree->Branch("elementID", elementID, "elementID[nHits]/I");
   saveTree->Branch("tdcTime", tdcTime, "tdcTime[nHits]/D");

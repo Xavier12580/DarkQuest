@@ -39,7 +39,7 @@ private:
 
   // Input
   // SRawEvent* rawEvent;
-  //SQEvent & Event;
+  SQEvent *Event;
   SQHitVector *hitVector;
   SRecEvent *recEvent;
 
@@ -51,7 +51,7 @@ private:
 
   Int_t runID, spillID, eventID;
   
-  Int_t triggerBits;
+  Int_t trigger;
   Int_t nHits;
   Int_t detectorID[15000], elementID[15000];
   Double_t tdcTime[15000], driftDistance[15000], pos[15000];
