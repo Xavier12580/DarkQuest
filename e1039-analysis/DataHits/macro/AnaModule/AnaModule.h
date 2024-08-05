@@ -52,6 +52,16 @@ private:
   Int_t runID, spillID, eventID;
   
   Int_t trigger;
+  bool NIM_1;
+  bool NIM_2;
+  bool NIM_3;
+  bool NIM_4;
+  bool NIM_5;
+  bool MATRIX_1;
+  bool MATRIX_2;
+  bool MATRIX_3;
+  bool MATRIX_4;
+  bool MATRIX_5;
   Int_t nHits;
   Int_t detectorID[15000], elementID[15000];
   Double_t tdcTime[15000], driftDistance[15000], pos[15000];

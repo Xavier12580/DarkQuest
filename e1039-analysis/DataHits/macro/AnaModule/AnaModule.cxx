@@ -44,7 +44,16 @@ int AnaModule::process_event(PHCompositeNode *topNode)
   spillID=Event->get_spill_id();
   eventID=Event->get_event_id();
   trigger=Event->get_trigger();
-
+  NIM_1=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::NIM1));
+  NIM_2=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::NIM2));
+  NIM_3=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::NIM3));
+  NIM_4=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::NIM4));
+  NIM_5=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::NIM5));
+  MATRIX_1=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::MATRIX1));
+  MATRIX_2=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::MATRIX2));
+  MATRIX_3=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::MATRIX3));
+  MATRIX_4=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::MATRIX4));
+  MATRIX_5=Event->get_trigger(static_cast<SQEvent::TriggerMask>(SQEvent::MATRIX5));
   for (Int_t k = 0; k < nHits; ++k)
   {
     SQHit *h = hitVector->at(k);
@@ -194,6 +203,16 @@ int AnaModule::ResetEvalVars()
     eventID = std::numeric_limits<int>::max();
     trigger = std::numeric_limits<int>::max();
   n_tracks = 0;
+   NIM_1=0;
+   NIM_2=0;
+   NIM_3=0;
+   NIM_4=0;
+   NIM_5=0;
+   MATRIX_1=0;
+   MATRIX_2=0;
+   MATRIX_3=0;
+   MATRIX_4=0;
+   MATRIX_5=0;
   for (int i = 0; i < 100; ++i)
   {
     track_charge[i] = std::numeric_limits<int>::max();
@@ -263,6 +282,16 @@ void AnaModule::MakeTree()
   saveTree->Branch("runID", &runID);
   saveTree->Branch("spillID", &spillID);
   saveTree->Branch("trigger", &trigger);
+  saveTree->Branch("NIM_1", &NIM_1);
+  saveTree->Branch("NIM_2", &NIM_2);
+  saveTree->Branch("NIM_3", &NIM_3);
+  saveTree->Branch("NIM_4", &NIM_4);
+  saveTree->Branch("NIM_5", &NIM_5);
+  saveTree->Branch("MATRIX_1",&MATRIX_1);
+  saveTree->Branch("MATRIX_2",&MATRIX_2);
+  saveTree->Branch("MATRIX_3",&MATRIX_3);
+  saveTree->Branch("MATRIX_4",&MATRIX_4);
+  saveTree->Branch("MATRIX_5",&MATRIX_5);
   saveTree->Branch("detectorID", detectorID, "detectorID[nHits]/I");
   saveTree->Branch("elementID", elementID, "elementID[nHits]/I");
   saveTree->Branch("tdcTime", tdcTime, "tdcTime[nHits]/D");
