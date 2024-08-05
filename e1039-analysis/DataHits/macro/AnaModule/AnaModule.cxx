@@ -32,13 +32,12 @@ int AnaModule::process_event(PHCompositeNode *topNode)
   ResetEvalVars();
 
   nHits = hitVector->size();
+  nTriggerHits = triggerHitVector->size();
   std::cout << additional_information << std::endl;
   std::cout << "nhits " << nHits << std::endl;
   std::cout << "EVENT_NUMBER " << event_number << std::endl;
   event_number++;
   // The NIM1 and NIM3 bits are random triggers.
-  int nim1TriggerMask = 32;
-  int nim3TriggerMask = 128;
 
   runID=Event->get_run_id();
   spillID=Event->get_spill_id();
@@ -76,6 +75,17 @@ int AnaModule::process_event(PHCompositeNode *topNode)
 
     tdcTime[k] = h->get_tdc_time();
     driftDistance[k] = h->get_drift_distance();
+  }
+
+  for (Int_t k = 0; k < nTriggerHits; ++k)
+  {
+    SQHit *h = triggerHitVector->at(k);
+    trigger_hit_detectorID[k] = h->get_detector_id();
+    trigger_hit_elementID[k] = h->get_element_id();
+    trigger_hit_pos[k] = h->get_pos();
+
+    trigger_hit_tdcTime[k] = h->get_tdc_time();
+    trigger_hit_driftDistance[k] = h->get_drift_distance();
   }
 
   // track related variables
@@ -175,6 +185,13 @@ int AnaModule::GetNodes(PHCompositeNode *topNode)
     hitVector = nullptr;
     return Fun4AllReturnCodes::ABORTEVENT;
   }
+  triggerHitVector = findNode::getClass<SQHitVector>(topNode, "SQTriggerHitVector");
+  if (!triggerHitVector)
+  {
+    std::cout << "failed to find SQTriggerHitVector, return " << std::endl;
+    triggerHitVector = nullptr;
+    return Fun4AllReturnCodes::ABORTEVENT;
+  }
   recEvent = findNode::getClass<SRecEvent>(topNode, "SRecEvent");
   if (!recEvent || !saveReco)
   {
@@ -196,6 +213,16 @@ int AnaModule::ResetEvalVars()
     tdcTime[i] = std::numeric_limits<double>::max();
     driftDistance[i] = std::numeric_limits<double>::max();
     pos[i] = std::numeric_limits<double>::max();
+  }
+  nTriggerHits = 0;
+  for (int i = 0; i < 15000; ++i)
+  {
+    
+    trigger_hit_detectorID[i] = std::numeric_limits<int>::max();
+    trigger_hit_elementID[i] = std::numeric_limits<int>::max();
+    trigger_hit_tdcTime[i] = std::numeric_limits<double>::max();
+    trigger_hit_driftDistance[i] = std::numeric_limits<double>::max();
+    trigger_hit_pos[i] = std::numeric_limits<double>::max();
   }
 
     runID = std::numeric_limits<int>::max();
@@ -297,6 +324,12 @@ void AnaModule::MakeTree()
   saveTree->Branch("tdcTime", tdcTime, "tdcTime[nHits]/D");
   saveTree->Branch("driftDistance", driftDistance, "driftDistance[nHits]/D");
   saveTree->Branch("pos", pos, "pos[nHits]/D");
+  
+  saveTree->Branch("trigger_hit_detectorID", trigger_hit_detectorID, "trigger_hit_detectorID[nTriggerHits]/I");
+  saveTree->Branch("trigger_hit_elementID", trigger_hit_elementID, "trigger_hit_elementID[nTriggerHits]/I");
+  saveTree->Branch("trigger_hit_tdcTime", trigger_hit_tdcTime, "trigger_hit_tdcTime[nTriggerHits]/D");
+  saveTree->Branch("trigger_hit_driftDistance", trigger_hit_driftDistance, "trigger_hit_driftDistance[nTriggerHits]/D");
+  saveTree->Branch("trigger_hit_pos", trigger_hit_pos, "trigger_hit_pos[nTriggerHits]/D");
 
   if (saveReco)
   {

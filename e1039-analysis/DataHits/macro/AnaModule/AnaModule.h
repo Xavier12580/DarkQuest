@@ -41,6 +41,7 @@ private:
   // SRawEvent* rawEvent;
   SQEvent *Event;
   SQHitVector *hitVector;
+  SQHitVector *triggerHitVector;
   SRecEvent *recEvent;
 
   // Output
@@ -66,6 +67,10 @@ private:
   Int_t detectorID[15000], elementID[15000];
   Double_t tdcTime[15000], driftDistance[15000], pos[15000];
 
+  Int_t nTriggerHits;
+  Int_t trigger_hit_detectorID[15000], trigger_hit_elementID[15000];
+  Double_t trigger_hit_tdcTime[15000], trigger_hit_driftDistance[15000], trigger_hit_pos[15000];
+  
   int n_tracks;
   int track_charge[100];
   int track_nhits[100];
