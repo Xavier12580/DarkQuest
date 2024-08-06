@@ -76,9 +76,9 @@ int AnaModule::process_event(PHCompositeNode *topNode)
     tdcTime[k] = h->get_tdc_time();
     driftDistance[k] = h->get_drift_distance();
   }
-
   for (Int_t k = 0; k < nTriggerHits; ++k)
   {
+	 
     SQHit *h = triggerHitVector->at(k);
     trigger_hit_detectorID[k] = h->get_detector_id();
     trigger_hit_elementID[k] = h->get_element_id();
@@ -305,6 +305,7 @@ void AnaModule::MakeTree()
 
   saveTree = new TTree("Events", "Tree Created by AnaModule");
   saveTree->Branch("nHits", &nHits);
+  saveTree->Branch("nTriggerHits", &nTriggerHits);
   saveTree->Branch("eventID", &eventID);
   saveTree->Branch("runID", &runID);
   saveTree->Branch("spillID", &spillID);
