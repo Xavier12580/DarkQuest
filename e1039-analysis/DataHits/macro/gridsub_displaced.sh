@@ -55,7 +55,7 @@ for (( id=1; id<=$njobs; id++ )) ; do
 		CMD+=" -L $work/$id/log_gridrun.txt"
 		CMD+=" -f $work/input_$id.tar.gz"
 		CMD+=" -d OUTPUT $work/$id/out"
-		CMD+=" file://$work/$id/gridrun_standard.sh $nevents $id $run_number $3 $4 $5"
+		CMD+=" file://$work/$id/gridrun_displaced.sh $nevents $id $run_number $3 $4 $5"
 		echo "$CMD"
 		unbuffer $CMD |& tee $work/$id/log_jobsub_submit.txt
 		RET_SUB=${PIPESTATUS[0]}
