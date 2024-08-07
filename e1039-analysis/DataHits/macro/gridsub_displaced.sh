@@ -8,7 +8,7 @@ njobs=$(grep -c '^' "./file_list.txt")
 
 dir_macros=$(dirname $(readlink -f $BASH_SOURCE))
 
-jobname=$3_reco_$run_number
+jobname=fac$3_reducer$4_geomdummy_coarse$5_SpinQuest_Standard_reco_$run_number
 do_sub=1
 nevents=$2
 
@@ -28,7 +28,6 @@ rm -rf         $work
 mkdir -p       $work 
 chmod -R 01755 $work
 cd $dir_macros
-tar -czvf public.tar.gz file_list.txt RecoE1039Data.C work support AnaModule setup.sh ~/test/testio/core-inst
 
 rm $work/input*
 for (( id=1; id<=$njobs; id++ )) ; do
@@ -36,8 +35,15 @@ for (( id=1; id<=$njobs; id++ )) ; do
 	#	exit
 	#fi
 	file_name=$(sed "${id}q;d" "file_list.txt")
+	file_base=$(basename "$file_name" .root)
+	echo "/seaquest/users/xinlongl/data3/*$3/*$3_$run_number/ana_$file_base.root"
+	if [ -e /seaquest/users/xinlongl/data3/*$3/*$3_$run_number/ana_$file_base.root ] ; then
+		echo "$3_$run_number already exist"
+	
+		continue
+	fi
 	echo $file_name
-	tar -czvf $work/input_$id.tar.gz public.tar.gz $file_name
+	tar -czvf $work/input_$id.tar.gz public.tar.gz file_list.txt $file_name
 	mkdir -p $work/$id/out
 	chmod -R 01755 $work/$id
 	cp -a $dir_macros/gridrun_displaced.sh $work/$id
@@ -49,7 +55,7 @@ for (( id=1; id<=$njobs; id++ )) ; do
 		CMD+=" -L $work/$id/log_gridrun.txt"
 		CMD+=" -f $work/input_$id.tar.gz"
 		CMD+=" -d OUTPUT $work/$id/out"
-		CMD+=" file://$work/$id/gridrun_displaced.sh $nevents $id $run_number"
+		CMD+=" file://$work/$id/gridrun_standard.sh $nevents $id $run_number $3 $4 $5"
 		echo "$CMD"
 		unbuffer $CMD |& tee $work/$id/log_jobsub_submit.txt
 		RET_SUB=${PIPESTATUS[0]}

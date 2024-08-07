@@ -7,6 +7,13 @@ ls /
 nevents=$1
 job_id=$2
 run_number=$3
+fac=$4
+reducer=$5
+if [[ $6 == on ]] ; then
+	coarse=true
+elif [[ $6 = off ]] ; then
+	coarse=false
+fi
 if [ -z ${CONDOR_DIR_INPUT+x} ]; then
 	CONDOR_DIR_INPUT=./input;
 	echo "CONDOR_DIR_INPUT is initiallized as $CONDOR_DIR_INPUT"
@@ -35,7 +42,7 @@ file_list=file_list.txt
 file_name=$(sed "${job_id}q;d" "$file_list")
 file_base=$(basename "$file_name" .root)
 in_file="${file_name:1}"
-time root -b -q RecoE1039Data.C\($nevents,\"$in_file\",\"ana_$file_base\.root\",true,$run_number\);
+time root -b -q RecoE1039Data.C\($nevents,\"$in_file\",\"ana_$file_base\.root\",true,$run_number,$fac,\"$reducer\",$coarse\);
 RET=$?
 if [ $RET -ne 0 ] ; then
 	echo "Error in RecoE1039Data.C: $RET"

@@ -18,9 +18,8 @@ This is an example script intended to demonstrate how to run SQReco in a minimal
 suitable for production use and users should develop their own reconstruction macro for their own analysis.
 */
 
-int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_028694_spill_001415238.root", std::string outfile="ana.root", bool do_displaced_tracking=true,const int runID=6155)
+int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_028694_spill_001415238.root", std::string outfile="ana.root", bool do_displaced_tracking=true,const int runID=6155, const float fac=2,const string reducer="none", const bool coarse=false)
 {
-    const float fac=2;
 
     // Get the current time
 
@@ -65,7 +64,7 @@ int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_0
     rc->set_DoubleFlag("FMAGSTR", 0.);
   }
 
-  rc->set_BoolFlag("COARSE_MODE", false);
+  rc->set_BoolFlag("COARSE_MODE", coarse);
   //rc->set_DoubleFlag("KMAGSTR", 0.);
   //rc->set_BoolFlag("KMAG_ON", false);
 
@@ -100,7 +99,7 @@ int RecoE1039Data(const int nEvents, std::string infile = "./fileset/digit_run_0
   reco->set_enable_KF(true); //Kalman filter not needed for the track finding, disabling KF saves a lot of initialization time
   reco->setInputTy(SQReco::E1039);    //options are SQReco::E906 and SQReco::E1039
   reco->setFitterTy(SQReco::KFREF);  //not relavant for the track finding
-  reco->set_evt_reducer_opt("aoc"); //if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none"
+  reco->set_evt_reducer_opt(reducer.c_str()); //if not provided, event reducer will be using JobOptsSvc to intialize; to turn off, set it to "none"
 
   reco->set_enable_eval_dst(true); // Added to avoid processing errors
   reco->add_eval_list(3);
