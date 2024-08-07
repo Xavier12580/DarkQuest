@@ -8,7 +8,7 @@ njobs=$(grep -c '^' "./file_list.txt")
 
 dir_macros=$(dirname $(readlink -f $BASH_SOURCE))
 
-
+jobbase=fac$3_reducer$4_geomdummy_coarse$5_DarkQuest_displaced
 jobname=fac$3_reducer$4_geomdummy_coarse$5_DarkQuest_displaced_reco_$run_number
 do_sub=1
 nevents=$2
@@ -36,8 +36,8 @@ for (( id=1; id<=$njobs; id++ )) ; do
 	#fi
 	file_name=$(sed "${id}q;d" "file_list.txt")
 	file_base=$(basename "$file_name" .root)
-	echo "/seaquest/users/xinlongl/data3/*$3/*$3_$run_number/ana_$file_base.root"
-	if [ -e /seaquest/users/xinlongl/data3/*$3/*$3_$run_number/ana_$file_base.root ] ; then
+	echo "/seaquest/users/xinlongl/data3/*$jobbase/*$jobbase_$run_number/ana_$file_base.root"
+	if [ -e /seaquest/users/xinlongl/data3/*$jobbase/*$jobbase_$run_number/ana_$file_base.root ] ; then
 		echo "$3_$run_number already exist"
 	
 		continue
