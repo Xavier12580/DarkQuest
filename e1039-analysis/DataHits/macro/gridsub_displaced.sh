@@ -8,10 +8,10 @@ njobs=$(grep -c '^' "./file_list.txt")
 
 dir_macros=$(dirname $(readlink -f $BASH_SOURCE))
 
-jobname=fac$3_reducer$4_geomdummy_coarse$5_SpinQuest_Standard_reco_$run_number
+
+jobname=fac$3_reducer$4_geomdummy_coarse$5_DarkQuest_displaced_reco_$run_number
 do_sub=1
 nevents=$2
-
 echo "njobs=$njobs"
 echo "nevents=$nevents"
 
