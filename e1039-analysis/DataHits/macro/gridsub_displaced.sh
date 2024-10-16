@@ -37,11 +37,11 @@ for (( id=1; id<=$njobs; id++ )) ; do
 	file_name=$(sed "${id}q;d" "file_list.txt")
 	file_base=$(basename "$file_name" .root)
 	echo "/seaquest/users/xinlongl/data3/*$jobbase/*$jobbase_$run_number/ana_$file_base.root"
-	if [ -e /seaquest/users/xinlongl/data3/*$jobbase/*$jobbase_$run_number/ana_$file_base.root ] ; then
-		echo "$3_$run_number already exist"
+	#if [ -e /seaquest/users/xinlongl/data3/*$jobbase/*$jobbase_$run_number/ana_$file_base.root ] ; then
+	#	echo "$3_$run_number already exist"
 	
-		continue
-	fi
+	#	continue
+	#fi
 	echo $file_name
 	tar -czvf $work/input_$id.tar.gz public.tar.gz file_list.txt $file_name
 	mkdir -p $work/$id/out
