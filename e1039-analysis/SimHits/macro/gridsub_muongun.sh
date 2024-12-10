@@ -14,7 +14,8 @@ cd $dir_macros
 tar -czvf e1039_MC.tar.gz /seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest_original_branch/core-inst --transform='s,^seaquest/users/xinlongl/projects/z_vtx_sensitivity/DarkQuest_original_branch/,,'
 tar -czvf input_MC.tar.gz G4_EMCal.C RecoE1039Sim_muongun.C e1039_MC.tar.gz src work data
 
-z_vtxs=($(seq -100 100 100))
+#z_vtxs=($(seq -100 100 100))
+z_vtxs=($(seq -500 10 600))
 dir_ind=1
 for z_vtx in ${z_vtxs[@]}
 do
@@ -26,7 +27,7 @@ do
 	cp -a $dir_macros/gridrun_muongun.sh $job_dir
 	CMD="/exp/seaquest/app/software/script/jobsub_submit_spinquest.sh"
 	CMD+=" --expected-lifetime='medium'"
-	CMD+=" --memory=2000"
+	CMD+=" --memory=5000"
 	CMD+=" -L $job_dir/log_gridrun.txt"
 	CMD+=" -f $job_dir/input_MC.tar.gz"
 	CMD+=" -d OUTPUT $job_dir/out"

@@ -168,7 +168,7 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     const bool do_absorber = true;
     const bool do_dphodo = true;
     const bool do_station1DC = false; // station-1 drift chamber should be turned off by default
-    const bool doEMCal = false;       // emcal turned off (for SpinQuest)
+    const bool doEMCal = true;       // emcal turned off (for SpinQuest)
 
     // SpinQuest constants
     const double target_coil_pos_z = -300;
@@ -178,12 +178,13 @@ int RecoE1039Sim_muongun(const int nevents = 200,
     // const double FMAGSTR = -1.054;
     // const double KMAGSTR = -0.951;
     const double FMAGSTR = -1.044;
-    const double KMAGSTR = 1.025;
+    const double KMAGSTR = -1.025;
 
     // SpinQuest reco constants
     recoConsts *rc = recoConsts::instance();
     rc->set_DoubleFlag("FMAGSTR", FMAGSTR);
     rc->set_DoubleFlag("KMAGSTR", KMAGSTR);
+    rc->set_IntFlag("RUNNUMBER", 6155);
     if (doEMCal)
     {
         rc->set_CharFlag(
